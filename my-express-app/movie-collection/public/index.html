@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Movie Collection - Главная</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-film"></i>
+                <span>Movie Collection</span>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">
+                    <i class="fas fa-home"></i> Главная
+                </a>
+                <a href="/add" class="nav-link">
+                    <i class="fas fa-plus-circle"></i> Добавить фильм
+                </a>
+                <a href="/api/movies" class="nav-link" target="_blank">
+                    <i class="fas fa-code"></i> API
+                </a>
+                <a href="/api" class="nav-link" target="_blank">
+                    <i class="fas fa-book"></i> Документация
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Главный контент -->
+    <div class="container">
+        <header class="hero">
+            <h1>🎬 Коллекция фильмов</h1>
+            <p class="subtitle">Управляйте вашей коллекцией фильмов в стильном темном интерфейсе</p>
+            
+            <div class="hero-actions">
+                <a href="/add" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Добавить фильм
+                </a>
+                <a href="#movies" class="btn btn-secondary">
+                    <i class="fas fa-list"></i> Показать все
+                </a>
+                <button onclick="loadMovies()" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Обновить
+                </button>
+            </div>
+        </header>
+
+        <!-- Статистика -->
+        <section class="stats-section card fade-in">
+            <h2><i class="fas fa-chart-bar"></i> Статистика</h2>
+            <div class="stats-grid" id="stats">
+                <div class="stat-card">
+                    <i class="fas fa-film fa-2x"></i>
+                    <div class="stat-value" id="total-movies">0</div>
+                    <div class="stat-label">Всего фильмов</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-star fa-2x"></i>
+                    <div class="stat-value" id="avg-rating">0.0</div>
+                    <div class="stat-label">Средний рейтинг</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar fa-2x"></i>
+                    <div class="stat-value" id="latest-year">2024</div>
+                    <div class="stat-label">Последний год</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-tags fa-2x"></i>
+                    <div class="stat-value" id="total-genres">0</div>
+                    <div class="stat-label">Жанры</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Фильтры -->
+        <section class="filters-section card fade-in">
+            <h2><i class="fas fa-filter"></i> Фильтры</h2>
+            <div class="filters">
+                <div class="form-group">
+                    <label for="genre-filter"><i class="fas fa-theater-masks"></i> Жанр</label>
+                    <select id="genre-filter" onchange="filterMovies()">
+                        <option value="">Все жанры</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year-filter"><i class="fas fa-calendar-alt"></i> Год</label>
+                    <select id="year-filter" onchange="filterMovies()">
+                        <option value="">Все годы</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rating-filter"><i class="fas fa-star"></i> Мин. рейтинг</label>
+                    <input type="range" id="rating-filter" min="0" max="10" step="0.5" value="0" 
+                           oninput="updateRatingValue(this.value)" onchange="filterMovies()">
+                    <span id="rating-value">0+</span>
+                </div>
+                <div class="form-group">
+                    <label for="sort-filter"><i class="fas fa-sort"></i> Сортировка</label>
+                    <select id="sort-filter" onchange="filterMovies()">
+                        <option value="title">По названию (А-Я)</option>
+                        <option value="year-desc">По году (новые)</option>
+                        <option value="year-asc">По году (старые)</option>
+                        <option value="rating-desc">По рейтингу (высокий)</option>
+                        <option value="rating-asc">По рейтингу (низкий)</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Список фильмов -->
+        <section id="movies" class="movies-section fade-in">
+            <h2><i class="fas fa-list-ul"></i> Все фильмы</h2>
+            <div id="movies-container" class="movie-grid">
+                <!-- Фильмы будут загружены через JavaScript -->
+            </div>
+            <div id="loading" class="loading">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Загрузка фильмов...</p>
+            </div>
+            <div id="no-movies" class="no-movies" style="display: none;">
+                <div class="card" style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-film fa-4x" style="color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <h3>Фильмов пока нет</h3>
+                    <p>Добавьте первый фильм в коллекцию!</p>
+                    <a href="/add" class="btn btn-primary" style="margin-top: 1rem;">
+                        <i class="fas fa-plus"></i> Добавить фильм
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- API информация -->
+        <section class="api-section card fade-in">
+            <h2><i class="fas fa-code"></i> API Endpoints</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-url">/api/movies</span>
+                    <p class="endpoint-desc">Получить все фильмы (с фильтрами)</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method post">POST</span>
+                    <span class="endpoint-url">/api/movies</span>
+                    <p class="endpoint-desc">Добавить новый фильм</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method get">GET</span>
+                    <span class="endpoint-url">/api/movies/{id}</span>
+                    <p class="endpoint-desc">Получить фильм по ID</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method put">PUT</span>
+                    <span class="endpoint-url">/api/movies/{id}</span>
+                    <p class="endpoint-desc">Обновить фильм</p>
+                </div>
+                <div class="endpoint">
+                    <span class="method delete">DELETE</span>
+                    <span class="endpoint-url">/api/movies/{id}</span>
+                    <p class="endpoint-desc">Удалить фильм</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Футер -->
+    <footer>
+        <div class="footer-content">
+            <p>🎬 Movie Collection &copy; 2024 - Express.js учебный проект</p>
+            <p>Сделано с <i class="fas fa-heart" style="color: var(--danger);"></i> для изучения Express.js</p>
+            <div class="footer-links">
+                <a href="/api" target="_blank">API Документация</a> •
+                <a href="https://expressjs.com" target="_blank">Express.js</a> •
+                <a href="https://nodejs.org" target="_blank">Node.js</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="/script.js"></script>
+    <script>
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadMovies();
+            populateFilters();
+        });
+    </script>
+</body>
+</html>
